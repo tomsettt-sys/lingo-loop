@@ -56,7 +56,11 @@ export function LogModal() {
       lang: 'ko-KR',
       onResult: (text) => {
         if (!mounted.current) return
-        setVoiceText((current) => (current ? `${current} ${text}` : text))
+        setVoiceText((current) => {
+          const next = current ? `${current} ${text}` : text
+          setTopic(next)
+          return next
+        })
       },
       onStart: () => {
         if (!mounted.current) return
@@ -72,6 +76,18 @@ export function LogModal() {
         toast(speechErrorMessage(code))
       },
     })
+  }
+
+  function onVoiceChange(event) {
+    const value = event.target.value
+    setVoiceText(value)
+    setTopic(value)
+  }
+
+  function onTopicChange(event) {
+    const value = event.target.value
+    setTopic(value)
+    setVoiceText(value)
   }
 
   function parse() {
@@ -118,7 +134,7 @@ export function LogModal() {
         <p className="sub">예: 오늘 팟캐스트 20분 듣고 면접 연습 15분 했어.</p>
         <textarea
           value={voiceText}
-          onChange={(event) => setVoiceText(event.target.value)}
+          onChange={onVoiceChange}
           placeholder="오늘 공부한 내용을 말하거나 적어주세요."
         />
         <div className="actions" style={{ marginTop: 10 }}>
@@ -132,7 +148,7 @@ export function LogModal() {
           <input
             id="logTopic"
             value={topic}
-            onChange={(event) => setTopic(event.target.value)}
+            onChange={onTopicChange}
             required
             placeholder="예: 팟캐스트 듣기 / 면접 연습"
           />

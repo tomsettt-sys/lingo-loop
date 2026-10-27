@@ -184,12 +184,13 @@ export function clearBootstrapCache() {
 }
 
 export async function updateLogRecord(userId, log) {
-  const { error } = await supabase.from('logs').update({
+  const { data, error } = await supabase.from('logs').update({
     date: log.date,
     minutes: log.minutes,
     topic: log.topic,
-  }).eq('id', log.id).eq('user_id', userId)
+  }).eq('id', log.id).eq('user_id', userId).select('id')
   if (error) throw error
+  if (!data?.length) throw new Error('수정된 기록을 찾지 못했어요.')
 }
 
 export async function insertLog(userId, log) {
