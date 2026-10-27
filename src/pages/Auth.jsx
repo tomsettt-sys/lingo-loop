@@ -1,29 +1,47 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
+import { idToEmail, normalizeId, validateId } from '../lib/account'
 import { explainSupabaseError } from '../lib/data'
 import { supabase } from '../lib/supabase'
 
 export function AuthScreen() {
   const { toast } = useApp()
   const [mode, setMode] = useState('signIn')
-  const [email, setEmail] = useState('')
+  const [userId, setUserId] = useState('')
   const [password, setPassword] = useState('')
   const [pending, setPending] = useState(false)
   const [message, setMessage] = useState('')
 
+  function switchMode(next) {
+    setMode(next)
+    setMessage('')
+  }
+
   async function onSubmit(event) {
     event.preventDefault()
+    const idError = validateId(userId)
+    if (idError) {
+      setMessage(idError)
+      return
+    }
+    const id = normalizeId(userId)
+    const email = idToEmail(id)
     setPending(true)
     setMessage('')
     try {
       if (mode === 'signUp') {
-        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password })
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { username: id } },
+        })
         if (error) throw error
         if (!data.session) {
-          setMessage('가입 메일을 확인해 주세요. 메일이 오지 않으면 Supabase에서 Confirm email을 끈 뒤 다시 가입해 주세요.')
+          const signIn = await supabase.auth.signInWithPassword({ email, password })
+          if (signIn.error) throw signIn.error
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
       }
     } catch (error) {
@@ -44,20 +62,26 @@ export function AuthScreen() {
           <span className="dot">.</span>
         </div>
         <h1>{mode === 'signIn' ? '학습 공간에 들어가기' : '나의 학습 계정 만들기'}</h1>
-        <p className="sub">기록은 이 계정에만 저장되고, 다른 기기에서도 이어서 볼 수 있어요.</p>
+        <p className="sub">아이디와 비밀번호만 있으면 돼요. 기록은 이 아이디에만 저장됩니다.</p>
         <div className="auth-switch">
-          <button className={mode === 'signIn' ? 'active' : ''} type="button" onClick={() => setMode('signIn')}>로그인</button>
-          <button className={mode === 'signUp' ? 'active' : ''} type="button" onClick={() => setMode('signUp')}>회원가입</button>
+          <button className={mode === 'signIn' ? 'active' : ''} type="button" onClick={() => switchMode('signIn')}>로그인</button>
+          <button className={mode === 'signUp' ? 'active' : ''} type="button" onClick={() => switchMode('signUp')}>회원가입</button>
         </div>
         <form onSubmit={onSubmit}>
           <div className="form-row">
-            <label htmlFor="email">이메일</label>
+            <label htmlFor="userId">아이디</label>
             <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              id="userId"
+              type="text"
+              autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              placeholder="hyochan"
+              minLength={3}
+              maxLength={20}
+              value={userId}
+              onChange={(event) => setUserId(event.target.value)}
               required
             />
           </div>

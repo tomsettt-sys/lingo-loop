@@ -102,6 +102,33 @@ button:disabled {
   color: #99a499;
 }
 
+.log-side {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.log-side > span {
+  color: #8a968c;
+  font-size: 11px;
+}
+
+.edit-btn {
+  border: 1px solid #dbdfd6;
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 11px;
+  background: white;
+  color: #217c61;
+  font-weight: 600;
+}
+
+.edit-btn:hover {
+  border-color: #7ea889;
+}
+
 .account-row {
   display: flex;
   justify-content: space-between;

@@ -1,4 +1,5 @@
 import { useApp } from '../context/AppContext'
+import { usernameFromUser } from '../lib/account'
 
 const items = [
   ['home', '◫', '오늘의 학습'],
@@ -9,7 +10,9 @@ const items = [
 ]
 
 export function Sidebar() {
-  const { page, setPage } = useApp()
+  const { page, setPage, session } = useApp()
+  const username = usernameFromUser(session?.user)
+  const profileName = username || 'Hyochan'
 
   return (
     <aside>
@@ -47,9 +50,9 @@ export function Sidebar() {
         <i>✳</i>
       </div>
       <button className="profile" type="button" onClick={() => setPage('settings')}>
-        <span className="avatar">H</span>
+        <span className="avatar">{profileName.slice(0, 1).toUpperCase()}</span>
         <span>
-          Hyochan
+          {profileName}
           <small>나의 학습 설정 ↗</small>
         </span>
       </button>

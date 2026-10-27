@@ -5,6 +5,7 @@ import {
   clearBootstrapCache,
   explainSupabaseError,
   insertLog,
+  updateLogRecord,
   insertReview,
   insertScript,
   loadLocal,
@@ -29,6 +30,7 @@ export function AppProvider({ children }) {
   const [loadError, setLoadError] = useState('')
   const [retryCount, setRetryCount] = useState(0)
   const [logOpen, setLogOpen] = useState(false)
+  const [editingLog, setEditingLog] = useState(null)
   const [toastMessage, setToastMessage] = useState('')
   const [toastOn, setToastOn] = useState(false)
 
@@ -173,6 +175,44 @@ export function AppProvider({ children }) {
     }
   }
 
+  const updateLog = async (target, patch) => {
+    const before = stateRef.current.logs
+    const index = before.findIndex((item) => (target.id ? item.id === target.id : item === target))
+    if (index < 0) {
+      toastRef.current('수정할 기록을 찾지 못했어요.')
+      return false
+    }
+    const nextRow = { ...before[index], ...patch, id: before[index].id || crypto.randomUUID() }
+    apply({
+      ...stateRef.current,
+      logs: before.map((item, itemIndex) => (itemIndex === index ? nextRow : item)),
+    })
+    if (supabaseMode !== 'remote') return true
+    if (!before[index].id) {
+      apply({ ...stateRef.current, logs: before })
+      toastRef.current('이 기록은 서버에서 수정할 수 없어요.')
+      return false
+    }
+    const activeUserId = requireUser()
+    if (!activeUserId) {
+      apply({ ...stateRef.current, logs: before })
+      return false
+    }
+    try {
+      await updateLogRecord(activeUserId, nextRow)
+      return true
+    } catch (error) {
+      apply({ ...stateRef.current, logs: before })
+      toastRef.current(explainSupabaseError(error))
+      return false
+    }
+  }
+
+  const openLogComposer = (log = null) => {
+    setEditingLog(log)
+    setLogOpen(true)
+  }
+
   const addScript = async (entry) => {
     const row = { id: crypto.randomUUID(), ...entry }
     apply({ ...stateRef.current, scripts: [...stateRef.current.scripts, row] })
@@ -271,10 +311,14 @@ export function AppProvider({ children }) {
     loadError,
     logOpen,
     setLogOpen,
+    editingLog,
+    setEditingLog,
+    openLogComposer,
     toastMessage,
     toastOn,
     toast,
     addLog,
+    updateLog,
     addScript,
     addReview,
     saveSettings,

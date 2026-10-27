@@ -4,7 +4,7 @@ import { today } from '../lib/dates'
 import { speechErrorMessage, stopRecognition, toggleRecognition } from '../lib/speech'
 
 export function LogModal() {
-  const { logOpen, setLogOpen, addLog, toast } = useApp()
+  const { logOpen, setLogOpen, editingLog, setEditingLog, addLog, updateLog, toast } = useApp()
   const dialogRef = useRef(null)
   const mounted = useRef(true)
   const [voiceText, setVoiceText] = useState('')
@@ -26,22 +26,23 @@ export function LogModal() {
     const dialog = dialogRef.current
     if (!dialog) return undefined
     if (logOpen && !dialog.open) {
-      setVoiceText('')
-      setTopic('')
-      setMinutes('')
-      setDate(today())
+      setVoiceText(editingLog?.topic || '')
+      setTopic(editingLog?.topic || '')
+      setMinutes(editingLog ? String(editingLog.minutes) : '')
+      setDate(editingLog?.date || today())
       setListening(false)
       setSaving(false)
       dialog.showModal()
     }
     if (!logOpen && dialog.open) dialog.close()
     return undefined
-  }, [logOpen])
+  }, [logOpen, editingLog])
 
   function close() {
     stopRecognition()
     setListening(false)
     setLogOpen(false)
+    setEditingLog(null)
   }
 
   function dictate() {
@@ -87,17 +88,20 @@ export function LogModal() {
   async function onSubmit(event) {
     event.preventDefault()
     setSaving(true)
-    const ok = await addLog({
+    const entry = {
       date,
       minutes: Number(minutes),
       topic: topic.trim(),
-      type: '직접 기록',
-    })
+    }
+    const ok = editingLog
+      ? await updateLog(editingLog, entry)
+      : await addLog({ ...entry, type: '직접 기록' })
     if (mounted.current) setSaving(false)
     if (!ok) return
     stopRecognition()
     setLogOpen(false)
-    toast('오늘의 노력이 기록됐어요.')
+    setEditingLog(null)
+    toast(editingLog ? '학습 기록을 수정했어요.' : '오늘의 노력이 기록됐어요.')
   }
 
   return (
@@ -110,7 +114,7 @@ export function LogModal() {
       }}
     >
       <form onSubmit={onSubmit}>
-        <h2>오늘의 공부를 남겨볼까요?</h2>
+        <h2>{editingLog ? '이 기록을 수정할까요?' : '오늘의 공부를 남겨볼까요?'}</h2>
         <p className="sub">예: 오늘 팟캐스트 20분 듣고 면접 연습 15분 했어.</p>
         <textarea
           value={voiceText}
@@ -160,7 +164,7 @@ export function LogModal() {
         </div>
         <p className="sub">시간 표현(숫자 + 시간/분)을 읽어 합산해요. 저장 전 확인해 주세요.</p>
         <div className="actions">
-          <button className="primary" type="submit" disabled={saving}>기록 저장</button>
+          <button className="primary" type="submit" disabled={saving}>{editingLog ? '수정 저장' : '기록 저장'}</button>
           <button className="outline" type="button" onClick={close}>취소</button>
         </div>
       </form>

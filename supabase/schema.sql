@@ -191,3 +191,26 @@ $$;
 
 revoke all on function public.import_local_backup(jsonb) from public;
 grant execute on function public.import_local_backup(jsonb) to authenticated;
+
+-- 아이디 로그인에 쓰는 @id.lingoloop.app 계정은 가입 메일 없이 바로 확정합니다.
+create or replace function public.auto_confirm_id_login()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.email ilike '%@id.lingoloop.app' and new.email_confirmed_at is null then
+    new.email_confirmed_at := now();
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists auto_confirm_id_login on auth.users;
+create trigger auto_confirm_id_login
+  before insert on auth.users
+  for each row execute function public.auto_confirm_id_login();
+
+update auth.users
+set email_confirmed_at = now()
+where email ilike '%@id.lingoloop.app'
+  and email_confirmed_at is null;

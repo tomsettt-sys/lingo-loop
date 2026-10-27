@@ -25,7 +25,7 @@ npm run preview
 3. Project Settings → API에서 Project URL과 **anon public** 키를 복사합니다. `service_role` 키는 브라우저에 넣지 마세요.
 4. `.env.example`을 `.env.local`로 복사하고 두 값을 채웁니다.
 5. 개발 서버를 다시 시작합니다.
-6. 가입 직후 로그인하려면 Authentication → Providers → Email에서 Confirm email을 끕니다.
+6. 앱에서는 이메일 대신 아이디와 비밀번호로 가입합니다. 가입 직후 들어가지지 않으면 SQL Editor에서 `supabase/schema.sql`을 한 번 더 실행하세요.
 
 `.env.local`이 없으면 로그인 없이 동작하고, 기록은 `localStorage` 키 `lingoloop-v1`에 남습니다. 예전에 저장해 둔 기록은 첫 로그인 때 그 계정으로 한 번 옮겨집니다. 계정에 이미 기록이 있으면 덮어쓰지 않습니다.
 

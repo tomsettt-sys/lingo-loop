@@ -8,9 +8,9 @@ const bootstraps = new Map()
 
 export function explainSupabaseError(error) {
   const message = error?.message || ''
-  if (/invalid login credentials/i.test(message)) return '이메일 또는 비밀번호가 올바르지 않아요.'
-  if (/already registered|already been registered/i.test(message)) return '이미 가입된 이메일이에요. 로그인해 주세요.'
-  if (/email not confirmed/i.test(message)) return '이메일 확인이 필요해요. 받은 편지함을 확인해 주세요.'
+  if (/invalid login credentials/i.test(message)) return '아이디 또는 비밀번호가 올바르지 않아요.'
+  if (/already registered|already been registered/i.test(message)) return '이미 있는 아이디예요. 로그인해 주세요.'
+  if (/email not confirmed/i.test(message)) return '가입은 됐지만 바로 로그인되지 않았어요. SQL Editor에서 supabase/schema.sql을 한 번 더 실행한 뒤 로그인해 주세요.'
   if (/at least 6 characters/i.test(message)) return '비밀번호는 6자 이상이어야 해요.'
   if (/relation .* does not exist|schema cache|could not find the function/i.test(message)) {
     return 'Supabase 테이블이 아직 없어요. SQL Editor에서 supabase/schema.sql을 실행해 주세요.'
@@ -181,6 +181,15 @@ export function bootstrap(userId) {
 
 export function clearBootstrapCache() {
   bootstraps.clear()
+}
+
+export async function updateLogRecord(userId, log) {
+  const { error } = await supabase.from('logs').update({
+    date: log.date,
+    minutes: log.minutes,
+    topic: log.topic,
+  }).eq('id', log.id).eq('user_id', userId)
+  if (error) throw error
 }
 
 export async function insertLog(userId, log) {

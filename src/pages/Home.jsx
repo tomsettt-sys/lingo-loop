@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext'
 import { minutesOn, weekDays } from '../lib/dates'
 
 export function Home() {
-  const { state, setPage, setLogOpen } = useApp()
+  const { state, setPage, openLogComposer } = useApp()
   const done = minutesOn(state.logs)
   const goal = Number(state.goal) > 0 ? Number(state.goal) : 20
   const progress = Math.min(100, (done / goal) * 100)
@@ -59,7 +59,7 @@ export function Home() {
               </p>
               <div className="card-bottom"><span>복습 · 3분</span><span>↗</span></div>
             </button>
-            <button className="card" type="button" onClick={() => setLogOpen(true)}>
+            <button className="card" type="button" onClick={() => openLogComposer()}>
               <span className="symbol peach">▤</span>
               <h3>오늘을 기록하기</h3>
               <p>
@@ -75,7 +75,7 @@ export function Home() {
             <button className="text-btn" type="button" onClick={() => setPage('journal')}>전체 보기 ↗</button>
           </div>
           <section className="panel tight">
-            <LogList logs={recent} />
+            <LogList logs={recent} onEdit={openLogComposer} />
           </section>
           <div className="growth">
             <span>✳</span>

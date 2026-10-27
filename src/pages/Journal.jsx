@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext'
 import { minutesOn, studyDays, totalMinutes } from '../lib/dates'
 
 export function Journal() {
-  const { state, setLogOpen } = useApp()
+  const { state, openLogComposer } = useApp()
   const logs = [...state.logs].reverse()
 
   function exportRecords() {
@@ -31,7 +31,7 @@ export function Journal() {
     <>
       <PageIntro title="꾸준함이 쌓이는 곳" desc="오늘 무엇을, 얼마나 공부했는지 가볍게 남겨보세요." />
       <div className="actions">
-        <button className="primary" type="button" onClick={() => setLogOpen(true)}>＋ 학습 기록 추가</button>
+        <button className="primary" type="button" onClick={() => openLogComposer()}>＋ 학습 기록 추가</button>
         <button className="outline" type="button" onClick={exportRecords}>기록 JSON 내보내기</button>
       </div>
       <div className="stats">
@@ -40,7 +40,7 @@ export function Journal() {
         <section className="panel"><strong>{studyDays(state.logs)}<span style={{ fontSize: 13 }}> 일</span></strong><small>공부한 날</small></section>
       </div>
       <section className="panel">
-        <LogList logs={logs} />
+        <LogList logs={logs} onEdit={openLogComposer} />
       </section>
     </>
   )

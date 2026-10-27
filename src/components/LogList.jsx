@@ -1,4 +1,4 @@
-export function LogList({ logs }) {
+export function LogList({ logs, onEdit }) {
   if (!logs.length) {
     return (
       <div className="empty">
@@ -16,7 +16,12 @@ export function LogList({ logs }) {
         <strong>{item.topic}</strong>
         <small>{item.date} · {item.type}</small>
       </div>
-      <span>{item.minutes}분</span>
+      <div className="log-side">
+        <span>{item.minutes}분</span>
+        {onEdit && (
+          <button className="edit-btn" type="button" onClick={() => onEdit(item)}>수정</button>
+        )}
+      </div>
     </div>
   ))
 }

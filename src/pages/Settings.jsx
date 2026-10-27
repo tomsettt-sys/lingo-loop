@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { SetupSteps } from '../components/SetupSteps'
 import { PageIntro } from '../components/PageIntro'
 import { useApp } from '../context/AppContext'
+import { usernameFromUser } from '../lib/account'
 import { fields, levels } from '../lib/content'
 import { supabaseProjectHost } from '../lib/supabase'
 
 export function Settings() {
   const { state, saveSettings, session, supabaseMode, signOut } = useApp()
+  const username = usernameFromUser(session?.user)
   const [draft, setDraft] = useState(state)
   const [saving, setSaving] = useState(false)
 
@@ -78,8 +80,8 @@ export function Settings() {
             </div>
             <div className="account-row">
               <div>
-                <strong>{session?.user?.email}</strong>
-                <small>Supabase 계정</small>
+                <strong>{username || session?.user?.email}</strong>
+                <small>{username ? '아이디' : '계정'}</small>
               </div>
               <button className="outline" type="button" onClick={signOut}>로그아웃</button>
             </div>
