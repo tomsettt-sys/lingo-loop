@@ -62,7 +62,7 @@ export function AuthScreen() {
           <span className="dot">.</span>
         </div>
         <h1>{mode === 'signIn' ? '학습 공간에 들어가기' : '나의 학습 계정 만들기'}</h1>
-        <p className="sub">아이디와 비밀번호만 있으면 돼요. 기록은 이 아이디에만 저장됩니다.</p>
+        <p className="sub">아이디와 비밀번호만 있으면 돼요. 이 브라우저에 남아 있는 학습 기록은 로그인하면 이 아이디로 옮겨지고, 다른 기기에서도 보여요.</p>
         <div className="auth-switch">
           <button className={mode === 'signIn' ? 'active' : ''} type="button" onClick={() => switchMode('signIn')}>로그인</button>
           <button className={mode === 'signUp' ? 'active' : ''} type="button" onClick={() => switchMode('signUp')}>회원가입</button>

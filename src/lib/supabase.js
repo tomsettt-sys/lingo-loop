@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const url = (import.meta.env.VITE_SUPABASE_URL || '').trim()
-const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim()
+const url = (import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL || '').trim()
+const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY || '').trim()
 
 function looksPlaceholder(value) {
   return !value || /your[-_]|example|placeholder|YOUR_/i.test(value)
