@@ -107,7 +107,7 @@ export function LogModal() {
     const entry = {
       date,
       minutes: Number(minutes),
-      topic: topic.trim(),
+      topic: voiceText.trim() || topic.trim(),
     }
     const ok = editingLog
       ? await updateLog(editingLog, entry)

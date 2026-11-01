@@ -24,6 +24,9 @@ create table if not exists public.logs (
   created_at timestamptz not null default now()
 );
 
+comment on table public.logs is '학습 기록. topic 컬럼이 학습 내용입니다.';
+comment on column public.logs.topic is '학습 내용';
+
 create table if not exists public.scripts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,

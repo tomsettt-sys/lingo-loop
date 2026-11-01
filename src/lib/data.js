@@ -183,26 +183,26 @@ export function clearBootstrapCache() {
   bootstraps.clear()
 }
 
-export async function updateLogRecord(userId, log) {
-  const { data, error } = await supabase.from('logs').update({
-    date: log.date,
-    minutes: log.minutes,
-    topic: log.topic,
-  }).eq('id', log.id).eq('user_id', userId).select('id')
-  if (error) throw error
-  if (!data?.length) throw new Error('수정된 기록을 찾지 못했어요.')
-}
-
-export async function insertLog(userId, log) {
-  const { error } = await supabase.from('logs').insert({
+export async function saveLogRecord(userId, log) {
+  const topic = String(log.topic || '').trim()
+  const { data, error } = await supabase.from('logs').upsert({
     id: log.id,
     user_id: userId,
     date: log.date,
     minutes: log.minutes,
-    topic: log.topic,
-    type: log.type,
-  })
+    topic,
+    type: log.type || '직접 기록',
+  }, { onConflict: 'id' }).select('id, topic')
   if (error) throw error
+  if (!data?.length || data[0].topic !== topic) throw new Error('학습 내용이 데이터베이스에 저장되지 않았어요.')
+}
+
+export async function updateLogRecord(userId, log) {
+  await saveLogRecord(userId, log)
+}
+
+export async function insertLog(userId, log) {
+  await saveLogRecord(userId, log)
 }
 
 export async function insertScript(userId, script) {
